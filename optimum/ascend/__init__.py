@@ -1,0 +1,2 @@
+from .modeling import AscendModelForFeatureExtraction, AscendModelForSequenceClassification
+from .modeling_seq2seq import AscendModelForSeq2SeqLM
