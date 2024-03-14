@@ -2,21 +2,23 @@ from optimum.ascend import AscendModelForSeq2SeqLM
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, pipeline
 
 
-tokenizer = AutoTokenizer.from_pretrained("Helsinki-NLP/opus-mt-en-zh")
-translator = pipeline(
-    "translation",
-    model=AutoModelForSeq2SeqLM.from_pretrained("Helsinki-NLP/opus-mt-en-zh"),
-    tokenizer=tokenizer,
-    max_length=128,
-)
-
 en_texts = [
     "Hello, my name is Sylvain.",
     "I am a student, and I am learning to program.",
 ]
 
-hf_translations = translator(en_texts)
+# translator = pipeline(
+#     "translation",
+#     model=AutoModelForSeq2SeqLM.from_pretrained("Helsinki-NLP/opus-mt-en-zh"),
+#     tokenizer=tokenizer,
+#     max_length=128,
+# )
+#
 
+
+# hf_translations = translator(en_texts)
+
+tokenizer = AutoTokenizer.from_pretrained("Helsinki-NLP/opus-mt-en-zh")
 model = AscendModelForSeq2SeqLM.from_pretrained(
     "Helsinki-NLP/opus-mt-en-zh",
     export=True,
@@ -26,7 +28,6 @@ model = AscendModelForSeq2SeqLM.from_pretrained(
     max_sequence_length=128,
     max_output_sequence_length=128,
 )
-
 
 inputs = tokenizer(
     en_texts,
@@ -38,8 +39,8 @@ inputs = tokenizer(
 outputs = model.generate(**inputs)
 ascend_translations = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-for ht, at, orig in zip(hf_translations, ascend_translations, en_texts):
-    print(f"Original: {orig}")
-    print(f"Hugging Face: {ht['translation_text']}")
-    print(f"Ascend: {at}")
-    print()
+# for ht, at, orig in zip(hf_translations, ascend_translations, en_texts):
+#     print(f"Original: {orig}")
+#     print(f"Hugging Face: {ht['translation_text']}")
+#     print(f"Ascend: {at}")
+#     print()

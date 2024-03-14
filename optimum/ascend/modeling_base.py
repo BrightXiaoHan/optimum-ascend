@@ -275,17 +275,8 @@ class AscendBaseModel(OptimizedModel):
             cache_dir=cache_dir,
             **kwargs,
         )
-        onnx_config = infer_onnx_config(
-            model_id,
-            subfolder=subfolder,
-            revision=revision,
-            cache_dir=cache_dir,
-            **kwargs,
-        )
-
         ascend_main_export(
             save_dir_path,
-            onnx_config,
             output=save_dir_path,
             task=task,
             **kwargs,

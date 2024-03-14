@@ -47,6 +47,12 @@ def parse_args_ascend(parser: "ArgumentParser"):
         default=512,
         help="The maximum output sequence length supported by the exported model. This is only used for encoder-decoder models.",
     )
+    optional_group.add_argument(
+        "--from-onnx",
+        action="store_true",
+        help="If set, the input model is an ONNX model export from 'optimum export onnx' command."
+        "Otherwise, the input model is a raw huggingface model.",
+    )
 
 
 class AscendExportCommand(ONNXExportCommand):
@@ -77,15 +83,11 @@ class AscendExportCommand(ONNXExportCommand):
         return parse_args_ascend(parser)
 
     def run(self):
-        super().run()
-
-        onnx_config = infer_onnx_config(
-            self.args.model,
-        )
+        if not self.args.from_onnx:
+            super().run()
 
         main_export(
             self.args.output,
-            onnx_config,
             output=self.args.output,
             task=self.args.task,
             soc_version=self.args.soc_version,

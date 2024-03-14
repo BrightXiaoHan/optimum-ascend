@@ -24,7 +24,7 @@ model_inputs = tokenizer(
 config = AutoConfig.from_pretrained("Yuyi-Tech/need_follow_cls")
 custom_onnx_config = BertOnnxConfig(
     config=config,
-    task="automatic-speech-recognition",
+    task="text-classification",
 )
 
 custom_onnx_configs = {"model": custom_onnx_config}
