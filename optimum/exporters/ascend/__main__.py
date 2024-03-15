@@ -3,6 +3,7 @@ import shutil
 import subprocess
 
 import onnxruntime as ort
+from collections import OrderedDict
 
 from .constants import OM_NAME_LIST, ONNX_NAME_LIST
 
@@ -14,11 +15,11 @@ MIN_SEQUENCE_LENGTH = 32
 def parse_onnx_inputs_outputs(onnx_model_path: str):
     model = ort.InferenceSession(onnx_model_path, providers=["CPUExecutionProvider"])
 
-    input_dict = {}
+    input_dict = OrderedDict()
     for input in model.get_inputs():
         input_dict[input.name] = input.shape
 
-    output_dict = {}
+    output_dict = OrderedDict()
     for output in model.get_outputs():
         output_dict[output.name] = output.shape
 
@@ -61,7 +62,7 @@ def export(
                     for i in range(len(shapes)):
                         dim_n = shapes[i]
                         if isinstance(dim_n, int):
-                            spl.append(str(dim_n))
+                            continue
                         elif "batch_size" in dim_n:
                             spl.append(f"{cur_bsz}")
                         elif "decoder_sequence_length" in dim_n:
@@ -79,14 +80,17 @@ def export(
     # dynamic_dims e.g.1> "1,64,1,64;2,64,2,64;4,64,4,64"
     dynamic_dims = ";".join(dynamic_dims_list)
 
-    subprocess.run(
+    output_path = output_path.replace(".om", "")
+    command = (
         f"atc --model={model_path} --framework=5 --output={output_path} --soc_version={soc_version} "
         f"--input_shape='{input_shape}' --dynamic_dims='{dynamic_dims}' "
-        "--precision_mode=allow_fp32_to_fp16 --output_type FP32 --input_format=ND",
+        "--precision_mode=allow_fp32_to_fp16 --output_type FP32 --input_format=ND"
+    )
+
+    subprocess.run(
+        command,
         shell=True,
         check=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
     )
 
 
@@ -112,7 +116,9 @@ def main_export(
         if not os.path.exists(model_path):
             continue
         success = True
-        output_path = os.path.join(output, om_name.replace(".om", ""))
+        output_path = os.path.join(output, om_name)
+        if os.path.exists(output_path):
+            continue
 
         export(
             model_path,
