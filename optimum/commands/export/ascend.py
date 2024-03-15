@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Optional
 from optimum.commands.base import CommandInfo
 from optimum.commands.export.onnx import ONNXExportCommand
 
-from ...ascend.utils import infer_onnx_config
 from ...exporters.ascend.__main__ import main_export
 
 
@@ -38,14 +37,20 @@ def parse_args_ascend(parser: "ArgumentParser"):
         "--max-sequence-length",
         type=int,
         default=512,
-        help="The maximum sequence length to use for the exported model. If the model is an encoder model or an deocder only model, this will be the maximum context length."
+        help="The maximum sequence length to use for the exported model. If the model is an encoder model, this will be the maximum context length."
         "if the model is an encoder-decoder model, this will be the maximum input sequence length.",
     )
     optional_group.add_argument(
         "--max-output-sequence-length",
         type=int,
         default=512,
-        help="The maximum output sequence length supported by the exported model. This is only used for encoder-decoder models.",
+        help="The maximum generation sequence length to use for the exported model. This is only used for encoder-decoder and decoder models.",
+    )
+    optional_group.add_argument(
+        "--max-prompts-length",
+        type=int,
+        default=128,
+        help="The maximum generation prompts length supported by the exported model. This is only used for encoder-decoder and decoder models.",
     )
     optional_group.add_argument(
         "--from-onnx",
