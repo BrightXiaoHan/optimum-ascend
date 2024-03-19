@@ -1,4 +1,3 @@
-import importlib
 from typing import Optional
 
 from optimum.exporters import TasksManager
@@ -6,13 +5,26 @@ from optimum.exporters.onnx import OnnxConfig
 from transformers import AutoConfig
 
 
-def is_acl_available():
-    try:
-        importlib.import_module("acl")
+try:
+    import acl
+except ImportError:
+    acl = None
 
+
+def is_acl_available():
+    if acl is None:
+        return False
+    else:
         return True
-    except ImportError:
-        return True
+
+
+def get_soc_name():
+    if not is_acl_available():
+        raise ImportError(
+            "ACL is not available. Auto detection of SoC name is not possible."
+        )
+    name = acl.get_soc_name()
+    return name
 
 
 def infer_onnx_config(

@@ -7,7 +7,6 @@ from typing import Optional, Union
 
 from huggingface_hub import hf_hub_download
 from optimum.exporters import TasksManager
-from optimum.exporters.onnx import OnnxConfig
 from optimum.exporters.onnx import main_export as onnx_main_export
 from optimum.modeling_base import OptimizedModel
 from requests.exceptions import ConnectionError as RequestsConnectionError
@@ -18,7 +17,6 @@ from transformers.generation import GenerationMixin
 from ..exporters.ascend import main_export as ascend_main_export
 from ..exporters.ascend.constants import OM_WEIGHTS_NAME
 from .acl_model import ACLModel
-from .utils import infer_onnx_config
 
 
 logger = logging.getLogger(__name__)
@@ -36,14 +34,11 @@ class AscendBaseModel(OptimizedModel):
         config: PretrainedConfig = None,
         device: str = "0",
         model_save_dir: Optional[Union[str, Path, TemporaryDirectory]] = None,
-        onnx_config: OnnxConfig = None,
         **kwargs,
     ):
         self.config = config
         self._device = device.upper()
         self.preprocessors = kwargs.get("preprocessors", [])
-
-        self.onnx_config = onnx_config
 
         self.model = model
 
@@ -144,18 +139,10 @@ class AscendBaseModel(OptimizedModel):
             local_files_only=local_files_only,
         )
         acl_model = cls.load_model(model_cache_path)
-        onnx_config = infer_onnx_config(
-            model_id,
-            subfolder=subfolder,
-            revision=revision,
-            cache_dir=cache_dir,
-            **kwargs,
-        )
         model = cls(
             acl_model,
             config=config,
             model_save_dir=model_cache_path.parent,
-            onnx_config=onnx_config,
             **kwargs,
         )
         return model

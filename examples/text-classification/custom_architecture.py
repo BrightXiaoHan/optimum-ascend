@@ -32,7 +32,6 @@ custom_onnx_configs = {"model": custom_onnx_config}
 model = AscendModelForSequenceClassification.from_pretrained(
     "Yuyi-Tech/need_follow_cls",
     custom_onnx_configs=custom_onnx_configs,
-    soc_version="Ascend910B3",
     export=True,
     task="text-classification",
     max_batch_size=8,

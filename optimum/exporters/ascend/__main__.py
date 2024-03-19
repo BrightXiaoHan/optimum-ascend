@@ -3,10 +3,11 @@ import shutil
 import subprocess
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import onnxruntime as ort
 
+from ...ascend.utils import get_soc_name
 from .constants import *
 
 
@@ -59,13 +60,15 @@ def export(
     model_path: str,
     output_path: str,
     model_type: str = ModelType.normal,
-    soc_version: str = "Ascend310P3",
+    soc_version: Optional[str] = None,
     max_batch_size: int = 8,
     max_sequence_length: int = 512,
     max_output_sequence_length: int = 512,
     max_prompts_length: int = 128,
     **kwargs,
 ):
+    if soc_version is None:
+        soc_version = get_soc_name()
     input_dict, output_dict = parse_onnx_inputs_outputs(model_path)
     input_shape_list = []
     for name, shapes in input_dict.items():

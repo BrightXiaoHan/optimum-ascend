@@ -18,15 +18,15 @@ if TYPE_CHECKING:
 
 
 def parse_args_ascend(parser: "ArgumentParser"):
-    required_group = parser.add_argument_group("Ascend Required arguments")
-    required_group.add_argument(
-        "--soc-version",
-        type=str,
-        required=True,
-        help="The version of the Ascend SOC to use for the exported model.",
-    )
+    # required_group = parser.add_argument_group("Ascend Required arguments")
 
     optional_group = parser.add_argument_group("Ascend Optional arguments")
+    optional_group.add_argument(
+        "--soc-version",
+        type=str,
+        default=None,
+        help="The version of the Ascend SOC to use for the exported model. If not set, the SOC version will be auto-detected.",
+    )
     optional_group.add_argument(
         "--max-batch-size",
         type=int,
