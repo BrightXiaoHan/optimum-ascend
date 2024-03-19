@@ -3,7 +3,6 @@ from itertools import chain
 from typing import Dict, List
 
 import numpy as np
-from optimum.exporters.onnx import OnnxConfig
 
 
 ACL_SUCCESS = 0

@@ -98,7 +98,7 @@ def export(
                                 continue
                             elif "batch_size" in dim_n:
                                 spl.append(f"{cur_bsz}")
-                            elif "decoder_sequence_length" in dim_n and model_type == [
+                            elif "decoder_sequence_length" in dim_n and model_type in [
                                 ModelType.seq2seq_decoder,
                                 ModelType.decoder_only,
                             ]:
