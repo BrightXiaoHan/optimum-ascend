@@ -287,33 +287,30 @@ class AscendModelForSeq2SeqLM(AscendBaseModelForSeq2SeqLM, GenerationMixin):
 
 class AscendEncoder:
     """
-    Encoder model for OpenVINO inference.
+    Encoder model for Ascend inference.
 
     Arguments:
-        request (`openvino.runtime.ie_api.InferRequest`):
-            The OpenVINO inference request associated to the encoder.
+        model (`optimum.ascend.ACLModel`):
+            The Ascend ACL model associated to the encoder.
+        parent_model (`optimum.ascend.AscendModelForSeq2SeqLM`):
+            The parent model associated to the encoder.
     """
 
     def __init__(self, model: ACLModel, parent_model: AscendBaseModelForSeq2SeqLM):
         self.model = model
         self.parent_model = parent_model
-        self._device = self.parent_model._device
-        self.device = torch.device("cpu")
         self.input_names = {
             key.get_any_name(): idx for idx, key in enumerate(self.model.inputs)
         }
         self.main_input_name = self.parent_model.main_input_name or "input_ids"
-        self.request = None
 
     @add_start_docstrings_to_model_forward(ENCODER_INPUTS_DOCSTRING)
     def forward(
         self,
-        input_ids: torch.LongTensor = None,
-        attention_mask: torch.LongTensor = None,
+        input_ids: np.ndarray = None,
+        attention_mask: np.ndarray = None,
         **kwargs,
     ) -> BaseModelOutput:
-        self._compile()
-
         # Model inputs
         inputs = {
             self.main_input_name: input_ids
@@ -326,12 +323,7 @@ class AscendEncoder:
             inputs["attention_mask"] = attention_mask
 
         # Run inference
-        last_hidden_state = torch.from_numpy(
-            self.request(inputs, share_inputs=True, share_outputs=True)[
-                "last_hidden_state"
-            ]
-        ).to(self.device)
-
+        last_hidden_state = self.model(inputs)["last_hidden_state"]
         return BaseModelOutput(last_hidden_state=last_hidden_state)
 
     def __call__(self, *args, **kwargs):
@@ -352,8 +344,6 @@ class AscendDecoder:
     def __init__(self, model: ACLModel, parent_model: AscendModelForSeq2SeqLM):
         self.model = model
         self.parent_model = parent_model
-        self._device = self.parent_model._device
-        self.device = torch.device("cpu")
         self.input_names = {
             key.get_any_name(): idx for idx, key in enumerate(self.model.inputs)
         }

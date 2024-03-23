@@ -1,5 +1,5 @@
 from optimum.ascend import AscendModelForSeq2SeqLM
-from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, pipeline
+from transformers import AutoTokenizer
 
 
 en_texts = [
@@ -18,15 +18,15 @@ en_texts = [
 
 # hf_translations = translator(en_texts)
 
-tokenizer = AutoTokenizer.from_pretrained("Helsinki-NLP/opus-mt-en-zh")
+tokenizer = AutoTokenizer.from_pretrained("../m2m100_418M/")
 model = AscendModelForSeq2SeqLM.from_pretrained(
-    "Helsinki-NLP/opus-mt-en-zh",
-    export=True,
+    "../m2m100_418M/",
+    export=False,
     task="text2text-generation-with-past",
-    soc_version="Ascend910B3",  # replace with your own SoC version
-    max_batch_size=16,  # for text2text-generation-with-past, 'batch_size * num_beams' should be less than or equal to 'max_batch_size'
-    max_sequence_length=128,
-    max_output_sequence_length=128,
+    # soc_version="Ascend910B3",  # replace with your own SoC version
+    # max_batch_size=16,  # for text2text-generation-with-past, 'batch_size * num_beams' should be less than or equal to 'max_batch_size'
+    # max_sequence_length=128,
+    # max_output_sequence_length=128,
 )
 
 inputs = tokenizer(
